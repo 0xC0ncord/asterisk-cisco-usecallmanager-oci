@@ -1,0 +1,55 @@
+ARG ASTERISK_VERSION
+
+FROM debian:11-slim as builder
+ARG ASTERISK_VERSION
+ENV ASTERISK_VERSION ${ASTERISK_VERSION}
+RUN apt update && \
+    apt upgrade && \
+    apt install -y curl patch make gcc g++ libedit-dev uuid-dev libjansson-dev libxml2-dev libsqlite3-dev libpopt-dev libssl-dev libz-dev bzip2 && \
+    curl -L https://github.com/asterisk/asterisk/releases/download/${ASTERISK_VERSION}/asterisk-${ASTERISK_VERSION}.tar.gz \
+        -o asterisk.tar.gz && \
+    curl -L https://raw.githubusercontent.com/usecallmanagernz/patches/master/asterisk/cisco-usecallmanager-${ASTERISK_VERSION}.patch \
+        -o cisco-usecallmanager.patch && \
+    tar xvf asterisk.tar.gz && \
+    cd asterisk-${ASTERISK_VERSION} && \
+    patch -p1 ../cisco-usecallmanager.patch && \
+    ./configure \
+        --localstatedir=/var \
+        --with-crypto \
+        --with-gsm=internal \
+        --with-popt \
+        --with-z \
+        --with-libedit \
+        --with-ssl \
+        --with-pjproject \
+        --without-xmldoc && \
+    make DESTDIR=/app menuselect.makeopts && \
+    menuselect/menuselect --enable app_voicemail chan_sip menuselect.makeopts && \
+    make DESTDIR=/app install && \
+    rm -rf /app/share /app/var/run && \
+    chown -R 1000:1000 /app/etc/asterisk /app/var/lib/asterisk
+
+FROM debian:11-slim
+COPY --from=builder /app /app
+RUN apt update && \
+    apt upgrade && \
+    apt install -y libxml2 sqlite3 libjansson4 libedit2 libpopt0 openssl && \
+    cp -rv /app/* / && \
+    rm -rf /app && \
+    mkdir -p /run/asterisk && \
+    chown 1000:1000 /run/asterisk /var/lib/asterisk /var/cache/asterisk /var/spool/asterisk && \
+    chmod 0750 /run/asterisk && \
+    rm -rf /var/lib/apt/lists/* && \
+    dpkg --remove --force-all apt dpkg
+
+EXPOSE 5060
+EXPOSE 5061
+
+VOLUME /app/etc/asterisk
+VOLUME /app/var/lib/asterisk
+
+WORKDIR /app/var/lib/asterisk
+USER 1000:1000
+COPY --chown=0:0 --chmod=755 entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["-c"]
