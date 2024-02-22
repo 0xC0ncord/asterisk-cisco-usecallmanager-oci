@@ -36,6 +36,10 @@ RUN apt update && \
         CONFIG_EXTEN=.sample \
         AST_FORTIFY_SOURCE= \
     " && \
+    export CFLAGS=" \
+        -DENABLE_SRTP_AES_GCM \
+        -DENABLE_SRTP_AES_256 \
+    " && \
     make ${MAKEOPTS} menuselect.makeopts && \
     menuselect/menuselect --disable astdb2sqlite3 menuselect.makeopts && \
     menuselect/menuselect --disable astdb2bdb menuselect.makeopts && \
@@ -70,6 +74,9 @@ RUN apt update && \
     mkdir -p /run/asterisk && \
     chown 1000:1000 /run/asterisk /var/lib/asterisk /var/cache/asterisk /var/spool/asterisk && \
     chmod 0750 /run/asterisk && \
+    sed -e 's/^MinProtocol = TLSv1\.2/MinProtocol = TLSv1.0/' \
+        -e 's/^CipherString = DEFAULT@SECLEVEL=2/CipherString = DEFAULT@SECLEVEL=1/' \
+        -i /etc/ssl/openssl.cnf && \
     rm -rf /var/lib/apt/lists/* && \
     dpkg --remove --force-all apt dpkg
 
