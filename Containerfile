@@ -12,7 +12,7 @@ RUN apt update && \
         -o cisco-usecallmanager.patch && \
     tar xvf asterisk.tar.gz && \
     cd asterisk-${ASTERISK_VERSION} && \
-    patch -p1 ../cisco-usecallmanager.patch && \
+    patch -p1 <../cisco-usecallmanager.patch && \
     ./configure \
         --libdir=/usr/lib \
         --localstatedir=/var \
