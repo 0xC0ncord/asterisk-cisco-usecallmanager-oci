@@ -64,7 +64,7 @@ FROM debian:11-slim
 COPY --from=builder /app /app
 RUN apt update && \
     apt upgrade && \
-    apt install -y libxml2 sqlite3 libjansson4 libedit2 libpopt0 openssl && \
+    apt install -y libxml2 sqlite3 libjansson4 libedit2 libpopt0 libsrtp2-1 openssl && \
     cp -rv /app/* / && \
     rm -rf /app && \
     mkdir -p /run/asterisk && \
