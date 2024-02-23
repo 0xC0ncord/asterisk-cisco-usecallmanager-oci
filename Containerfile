@@ -5,7 +5,22 @@ ARG ASTERISK_VERSION
 ENV ASTERISK_VERSION ${ASTERISK_VERSION}
 RUN apt update && \
     apt upgrade && \
-    apt install -y curl patch make gcc g++ libedit-dev uuid-dev libjansson-dev libxml2-dev libsqlite3-dev libpopt-dev libssl-dev libz-dev bzip2 && \
+    apt install -y \
+        curl \
+        patch \
+        make \
+        gcc \
+        g++ \
+        bzip2 \
+        libedit-dev \
+        libjansson-dev \
+        libpopt-dev \
+        libsqlite3-dev \
+        libsrtp2-dev \
+        libssl-dev \
+        libxml2-dev \
+        libz-dev \
+        uuid-dev && \
     curl -L https://github.com/asterisk/asterisk/releases/download/${ASTERISK_VERSION}/asterisk-${ASTERISK_VERSION}.tar.gz \
         -o asterisk.tar.gz && \
     curl -L https://raw.githubusercontent.com/usecallmanagernz/patches/master/asterisk/cisco-usecallmanager-${ASTERISK_VERSION}.patch \
@@ -22,8 +37,7 @@ RUN apt update && \
         --with-z \
         --with-libedit \
         --with-ssl \
-        --with-pjproject \
-        --disable-xmldoc && \
+        --with-pjproject && \
     export MAKEOPTS=" \
         NOISY_BUILD=yes \
         ASTDBDIR=\$(ASTDATADIR)/astdb \
@@ -83,10 +97,10 @@ RUN apt update && \
 EXPOSE 5060
 EXPOSE 5061
 
-VOLUME /app/etc/asterisk
-VOLUME /app/var/lib/asterisk
+VOLUME /etc/asterisk
+VOLUME /var/lib/asterisk
 
-WORKDIR /app/var/lib/asterisk
+WORKDIR /var/lib/asterisk
 USER 1000:1000
 COPY --chown=0:0 --chmod=755 entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
