@@ -82,12 +82,22 @@ FROM debian:11-slim
 COPY --from=builder /app /app
 RUN apt update && \
     apt upgrade && \
-    apt install -y libxml2 sqlite3 libjansson4 libedit2 libpopt0 libsrtp2-1 openssl && \
+    apt install -y \
+        curl \
+        libedit2 \
+        libjansson4 \
+        libpopt0 \
+        libsrtp2-1 \
+        libxml2 \
+        libxslt1.1 \
+        openssl \
+        sqlite3 && \
     cp -rv /app/* / && \
     rm -rf /app && \
     mkdir -p /run/asterisk && \
     chown 1000:1000 /run/asterisk /var/lib/asterisk /var/cache/asterisk /var/spool/asterisk && \
     chmod 0750 /run/asterisk && \
+    mv /var/lib/asterisk /var/lib/.asterisk && \
     sed -e 's/^MinProtocol = TLSv1\.2/MinProtocol = TLSv1.0/' \
         -e 's/^CipherString = DEFAULT@SECLEVEL=2/CipherString = DEFAULT@SECLEVEL=1/' \
         -i /etc/ssl/openssl.cnf && \
