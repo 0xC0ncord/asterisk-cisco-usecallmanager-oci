@@ -104,6 +104,7 @@ RUN apt update && \
     chown 1000:1000 /run/asterisk /var/lib/asterisk /var/cache/asterisk /var/spool/asterisk && \
     chmod 0750 /run/asterisk && \
     mv /var/lib/asterisk /var/lib/.asterisk && \
+    mv /var/log/asterisk /var/log/.asterisk && \
     sed -e 's/^MinProtocol = TLSv1\.2/MinProtocol = TLSv1.0/' \
         -e 's/^CipherString = DEFAULT@SECLEVEL=2/CipherString = DEFAULT@SECLEVEL=1/' \
         -i /etc/ssl/openssl.cnf && \
