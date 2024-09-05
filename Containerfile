@@ -14,12 +14,14 @@ RUN apt update && \
         bzip2 \
         libedit-dev \
         libjansson-dev \
+        liblua5.4-dev \
         libpopt-dev \
         libsqlite3-dev \
         libsrtp2-dev \
         libssl-dev \
         libxml2-dev \
         libz-dev \
+        lua5.4 \
         uuid-dev && \
     curl -L https://github.com/asterisk/asterisk/releases/download/${ASTERISK_VERSION}/asterisk-${ASTERISK_VERSION}.tar.gz \
         -o asterisk.tar.gz && \
@@ -37,7 +39,8 @@ RUN apt update && \
         --with-z \
         --with-libedit \
         --with-ssl \
-        --with-pjproject && \
+        --with-pjproject \
+        --disable-xmldoc && \
     export MAKEOPTS=" \
         NOISY_BUILD=yes \
         ASTDBDIR=\$(ASTDATADIR)/astdb \
@@ -74,6 +77,7 @@ RUN apt update && \
     menuselect/menuselect --enable app_macro menuselect.makeopts && \
     menuselect/menuselect --enable chan_sip menuselect.makeopts && \
     menuselect/menuselect --enable res_monitor menuselect.makeopts && \
+    menuselect/menuselect --enable pbx_lua menuselect.makeopts && \
     make ${MAKEOPTS} install && \
     rm -rf /app/share /app/var/run && \
     chown -R 1000:1000 /app/etc/asterisk /app/var/lib/asterisk
@@ -86,10 +90,12 @@ RUN apt update && \
         curl \
         libedit2 \
         libjansson4 \
+        liblua5.4-0 \
         libpopt0 \
         libsrtp2-1 \
         libxml2 \
         libxslt1.1 \
+        lua5.4 \
         openssl \
         sqlite3 && \
     cp -rv /app/* / && \
