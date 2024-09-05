@@ -2,9 +2,9 @@ ARG ASTERISK_VERSION
 
 FROM debian:11-slim as builder
 ARG ASTERISK_VERSION
-ENV ASTERISK_VERSION ${ASTERISK_VERSION}
+ENV ASTERISK_VERSION=${ASTERISK_VERSION:-20.9.0}
 RUN apt update && \
-    apt upgrade && \
+    apt upgrade -y && \
     apt install -y \
         curl \
         patch \
@@ -85,7 +85,7 @@ RUN apt update && \
 FROM debian:11-slim
 COPY --from=builder /app /app
 RUN apt update && \
-    apt upgrade && \
+    apt upgrade -y && \
     apt install -y \
         curl \
         libedit2 \
